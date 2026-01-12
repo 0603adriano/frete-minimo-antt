@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Frete Mínimo ANTT</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+        }
+
+        .wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0 0 16px;
+        }
+
+        .card {
+            border: 1px solid rgba(127, 127, 127, .35);
+            border-radius: 14px;
+            padding: 16px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 640px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        label {
+            font-size: 12px;
+            opacity: .8;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(127, 127, 127, .35);
+            font-size: 16px;
+        }
+
+        .out {
+            margin-top: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(127, 127, 127, .10);
+        }
+
+        .row strong {
+            font-size: 16px;
+        }
+
+        .muted {
+            font-size: 12px;
+            opacity: .75;
+            margin-top: 10px;
+        }
+
+        .big {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Frete mínimo ANTT (CC + CCD)</h1>
+
+        <div class="card">
+            <div class="grid">
+                <div>
+                    <label for="eixos">Eixos</label>
+                    <select id="eixos">
+                        <option value="2">2 eixos</option>
+                        <option value="3">3 eixos</option>
+                        <option value="4">4 eixos</option>
+                        <option value="5">5 eixos</option>
+                        <option value="6">6 eixos</option>
+                        <option value="7">7 eixos</option>
+                        <option value="9">9 eixos</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="km">KM</label>
+                    <input id="km" type="number" inputmode="decimal" min="0" step="0.1" placeholder="Ex: 25" />
+                </div>
+            </div>
+
+            <div class="out">
+                <div class="row">
+                    <span>Carga e descarga (CC)</span>
+                    <strong id="cc">—</strong>
+                </div>
+                <div class="row">
+                    <span>Deslocamento (CCD)</span>
+                    <strong id="ccd">—</strong>
+                </div>
+                <div class="row">
+                    <span class="big">Valor frete ANTT</span>
+                    <strong class="big" id="total">—</strong>
+                </div>
+            </div>
+
+            <div class="muted">
+                Fórmula: CCD = KM × (R$/km por eixos) • Total = CC + CCD
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tabela do seu print (ajuste aqui se mudar no futuro)
+        const TABELA = {
+            2: { cc: 417.95, rs_km: 3.6735 },
+            3: { cc: 509.43, rs_km: 4.6502 },
+            4: { cc: 559.08, rs_km: 5.3306 },
+            5: { cc: 610.08, rs_km: 6.0112 },
+            6: { cc: 660.12, rs_km: 6.7301 },
+            7: { cc: 752.64, rs_km: 7.3085 },
+            9: { cc: 815.30, rs_km: 8.2680 },
+        };
+
+        const elEixos = document.getElementById("eixos");
+        const elKm = document.getElementById("km");
+        const elCC = document.getElementById("cc");
+        const elCCD = document.getElementById("ccd");
+        const elTotal = document.getElementById("total");
+
+        const moneyBRL = (n) =>
+            n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+        function calcular() {
+            const eixos = Number(elEixos.value);
+            const km = Number(elKm.value);
+
+            const dados = TABELA[eixos];
+            if (!dados || !Number.isFinite(km)) {
+                elCC.textContent = "—";
+                elCCD.textContent = "—";
+                elTotal.textContent = "—";
+                return;
+            }
+
+            const cc = dados.cc;
+            const ccd = km * dados.rs_km;
+            const total = cc + ccd;
+
+            elCC.textContent = moneyBRL(cc);
+            elCCD.textContent = moneyBRL(ccd);
+            elTotal.textContent = moneyBRL(total);
+        }
+
+        elEixos.addEventListener("change", calcular);
+        elKm.addEventListener("input", calcular);
+        calcular();
+    </script>
+</body>
+
+</html>
