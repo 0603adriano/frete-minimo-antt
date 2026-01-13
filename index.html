@@ -126,10 +126,23 @@
                     <span>Deslocamento (CCD)</span>
                     <strong id="ccd">—</strong>
                 </div>
-                <div class="row">
-                    <span class="big">Valor frete ANTT</span>
-                    <strong class="big" id="total">—</strong>
+                <div class="row" style="align-items:center;">
+                    <div>
+                        <div class="big">Valor frete ANTT</div>
+                        <div id="detalhe" style="font-size:12px; opacity:.75; margin-top:4px;">—</div>
+                    </div>
+
+                    <div style="text-align:right;">
+                        <strong class="big" id="total">—</strong>
+                        <div style="margin-top:8px;">
+                            <button id="copiar" type="button"
+                                style="padding:10px 12px; border-radius:12px; border:1px solid rgba(127,127,127,.35); background:rgba(127,127,127,.10); cursor:pointer;">
+                                Copiar valor
+                            </button>
+                        </div>
+                    </div>
                 </div>
+
             </div>
 
             <div class="muted">
@@ -155,6 +168,10 @@
         const elCC = document.getElementById("cc");
         const elCCD = document.getElementById("ccd");
         const elTotal = document.getElementById("total");
+        const elDetalhe = document.getElementById("detalhe");
+        const btnCopiar = document.getElementById("copiar");
+
+
 
         const moneyBRL = (n) =>
             n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -178,11 +195,26 @@
             elCC.textContent = moneyBRL(cc);
             elCCD.textContent = moneyBRL(ccd);
             elTotal.textContent = moneyBRL(total);
+            elDetalhe.textContent = `${moneyBRL(cc)} + (${km} km × ${dados.rs_km.toLocaleString("pt-BR")} R$/km)`;
+
         }
 
         elEixos.addEventListener("change", calcular);
         elKm.addEventListener("input", calcular);
         calcular();
+
+        btnCopiar.addEventListener("click", async () => {
+            const txt = elTotal.textContent;
+            try {
+                await navigator.clipboard.writeText(txt);
+                btnCopiar.textContent = "Copiado ✅";
+                setTimeout(() => (btnCopiar.textContent = "Copiar valor"), 1200);
+            } catch {
+                // fallback simples
+                prompt("Copie o valor:", txt);
+            }
+        });
+
     </script>
 </body>
 
